@@ -1,5 +1,5 @@
 dataset_type = 'CocoDataset'
-data_root = 'out_shp/train/512-512'
+data_root = '/media/DATA/liyi/project/iFLYTEK2021/out_shp/train/512-512'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 train_pipeline = [
@@ -12,7 +12,7 @@ train_pipeline = [
         mean=[123.675, 116.28, 103.53],
         std=[58.395, 57.12, 57.375],
         to_rgb=True),
-    dict(type='Pad', size_divisor=32),
+    dict(type='Pad_custom', size_divisor=32),
     dict(type='DefaultFormatBundle'),
     dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels', 'gt_masks'])
 ]
@@ -30,18 +30,18 @@ test_pipeline = [
                 mean=[123.675, 116.28, 103.53],
                 std=[58.395, 57.12, 57.375],
                 to_rgb=True),
-            dict(type='Pad', size_divisor=32),
+            dict(type='Pad_custom', size_divisor=32),
             dict(type='ImageToTensor', keys=['img']),
             dict(type='Collect', keys=['img'])
         ])
 ]
 data = dict(
-    samples_per_gpu=1,
-    workers_per_gpu=1,
+    samples_per_gpu=2,
+    workers_per_gpu=2,
     train=dict(
         type='CocoDataset',
-        ann_file='out_shp/train/512-512/annotations/train.json',
-        img_prefix='out_shp/train/512-512/train/',
+        ann_file='/media/DATA/liyi/project/iFLYTEK2021/out_shp/train/512-512/annotations/train.json',
+        img_prefix='/media/DATA/liyi/project/iFLYTEK2021/out_shp/train/512-512/train/',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(type='LoadAnnotations', with_bbox=True, with_mask=True),
@@ -52,7 +52,7 @@ data = dict(
                 mean=[123.675, 116.28, 103.53],
                 std=[58.395, 57.12, 57.375],
                 to_rgb=True),
-            dict(type='Pad', size_divisor=32),
+            dict(type='Pad_custom', size_divisor=32),
             dict(type='DefaultFormatBundle'),
             dict(
                 type='Collect',
@@ -61,8 +61,8 @@ data = dict(
         classes=('CultivatedLand', )),
     val=dict(
         type='CocoDataset',
-        ann_file='out_shp/train/512-512/annotations/test.json',
-        img_prefix='out_shp/train/512-512/test/',
+        ann_file='/media/DATA/liyi/project/iFLYTEK2021/out_shp/train/512-512/annotations/test.json',
+        img_prefix='/media/DATA/liyi/project/iFLYTEK2021/out_shp/train/512-512/test/',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(
@@ -77,7 +77,7 @@ data = dict(
                         mean=[123.675, 116.28, 103.53],
                         std=[58.395, 57.12, 57.375],
                         to_rgb=True),
-                    dict(type='Pad', size_divisor=32),
+                    dict(type='Pad_custom', size_divisor=32),
                     dict(type='ImageToTensor', keys=['img']),
                     dict(type='Collect', keys=['img'])
                 ])
@@ -85,8 +85,8 @@ data = dict(
         classes=('CultivatedLand', )),
     test=dict(
         type='CocoDataset',
-        ann_file='out_shp/train/512-512/annotations/test.json',
-        img_prefix='out_shp/train/512-512/test/',
+        ann_file='/media/DATA/liyi/project/iFLYTEK2021/out_shp/train/512-512/annotations/test.json',
+        img_prefix='/media/DATA/liyi/project/iFLYTEK2021/out_shp/train/512-512/test/',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(
@@ -101,7 +101,7 @@ data = dict(
                         mean=[123.675, 116.28, 103.53],
                         std=[58.395, 57.12, 57.375],
                         to_rgb=True),
-                    dict(type='Pad', size_divisor=32),
+                    dict(type='Pad_custom', size_divisor=32),
                     dict(type='ImageToTensor', keys=['img']),
                     dict(type='Collect', keys=['img'])
                 ])
@@ -116,13 +116,13 @@ lr_config = dict(
     warmup_iters=500,
     warmup_ratio=0.001,
     step=[8, 11])
-runner = dict(type='EpochBasedRunner', max_epochs=12)
+runner = dict(type='EpochBasedRunner', max_epochs=40)
 checkpoint_config = dict(interval=1)
 log_config = dict(interval=50, hooks=[dict(type='TextLoggerHook')])
 custom_hooks = [dict(type='NumClassCheckHook')]
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-load_from = 'out_shp/htc_x101_64x4d_fpn_dconv_c3-c5_mstrain_400_1400_16x1_20e_coco_20200312-946fd751.pth'
+load_from = '/media/DATA/liyi/project/iFLYTEK2021/out_shp/htc_x101_64x4d_fpn_dconv_c3-c5_mstrain_400_1400_16x1_20e_coco_20200312-946fd751.pth'
 resume_from = None
 workflow = [('train', 1)]
 model = dict(
@@ -345,10 +345,10 @@ model = dict(
             nms=dict(type='soft_nms', iou_threshold=0.5),
             max_per_img=100,
             mask_thr_binary=0.5)))
-root_path = 'out_shp/train/512-512/'
-test_root = 'out_shp/train/512-512/'
-work_dir = 'out_shp/train/512-512/'
+root_path = '/media/DATA/liyi/project/iFLYTEK2021/out_shp/train/512-512/'
+test_root = '/media/DATA/liyi/project/iFLYTEK2021/out_shp/train/512-512/'
+work_dir = '/media/DATA/liyi/project/iFLYTEK2021/out_shp/train/512-512/'
 classes = ('CultivatedLand', )
-data_test = 'out_shp/train/512-512/'
+data_test = '/media/DATA/liyi/project/iFLYTEK2021/out_shp/train/512-512/'
 filter_empty_gt = False
-gpu_ids = range(0, 8)
+# gpu_ids = range(0, 8)
