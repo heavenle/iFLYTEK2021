@@ -7,11 +7,11 @@ from osgeo import gdal
 from PIL import Image
 from skimage import io as skio
 
-__places__ = [
-    'CGDZ_9', 'CGGZ_7', 'CGHA_5', 'CGHE_2', 'CGHE_13', 'CGJC_23',
-    'CGJC_24', 'CGJN_2', 'CGJQ_3', 'CGLF_9', 'CGLY_4', 'CGTL_25',
-    'CGWH_4', 'CGWH_18', 'CGXC_3', 'CGZJ_6', 'CGZY_7', 'CGZY_24']
-
+# __places__ = [
+#     'CGDZ_8', 'CGDZ_10', 'CGHA_20', 'CGHA_21', 'CGHE_12', 'CGJC_22', 'CGJN_15',
+#     'CGJQ_14', 'CGLY_17', 'CGMY_8', 'CGSG_18', 'CGSH_12', 'CGWH_17', 'CGZJ_21',
+#     'CGZY_23', 'gengdi_B']
+__places__ = ['A_1984', 'I_1984', 'K_1984', 'BJ10232D_SC_002', 'TR004126VI_007']
 
 def save(images, annotations):
     ann = {}
@@ -37,8 +37,9 @@ def test_dataset(im_lists):
     images = []
     annotations = []
     for im_path in tqdm(im_lists):
-        im = Image.open(im_path)
-        w, h = im.size
+        # im = Image.open(im_path)
+        img = skio.imread(im_path)
+        h, w = img.shape[0], img.shape[1]
         image = {'file_name': os.path.basename(im_path), 'width': w, 'height': h, 'id': image_id}
         images.append(image)
 
@@ -162,45 +163,46 @@ if __name__ == '__main__':
     # 1 读取滑窗的尺寸scale，移动的步长stride
     data_root = sys.argv[1]
     scale, stride = map(int, data_root.split('-'))
-    
+
     # 2 读取路径与创建文件夹
     label_ids = {"CultivatedLand": 0}
-    test_img_path = 'out_shp/inference/images/'  # tif文件所在的文件夹
-    test_clip_path = f'out_shp/inference/{data_root}/test/'  # 剪切后的小图所在的文件夹
-    poi_json_path = f'out_shp/inference/{data_root}/test.json'  # 伪标签test.json的路径
+    test_img_path = './out_shp/inference/images/'  # tif文件所在的文件夹
+    test_clip_path = f'./out_shp/inference/{data_root}/test/'  # 剪切后的小图所在的文件夹
+    poi_json_path = f'./out_shp/inference/{data_root}/test.json'  # 伪标签test.json的路径
+    tmp_path = '/media/DATA/liyi/project/iFLYTEK2021/out_shp/inference/tmp/'  # 伪标签test.json的路径
     os.makedirs(test_clip_path, exist_ok=True)
-    
+
     # 3 对于每张place的原始图片，保存剪切得到的小图
     if sys.argv[3] == 'no':
         place = sys.argv[2]
         tif_path = test_img_path + f"{place}_offset.tif"
         img_path = test_clip_path + f"{place}_offset"
         im_lists = data_process(tif_path, img_path)
-        #im_lists.sort(key=lambda x: int((x.split('_')[-1]).split('.')[0]))
+        # im_lists.sort(key=lambda x: int((x.split('_')[-1]).split('.')[0]))
 
-        os.makedirs('tmp', exist_ok=True)
-        with open(f"tmp/{place}.txt", 'w') as f:
+        os.makedirs(tmp_path, exist_ok=True)
+        with open(tmp_path + f"{place}.txt", 'w') as f:
             f.write("\n".join(im_lists))  # 创建文件夹tmp,存储每个place剪切得到的小图的路径
-    
+
     # 4 所有原始place图片剪切完成后，利用保存的小图路径信息的txt文件创建伪标签文件test.json
     else:
+        print("start covert txt to json...")
         import time
 
         starttime = time.time()
 
-        os.makedirs('tmp', exist_ok=True)
-        while len(os.listdir('tmp')) < 18:
-            pass
+        os.makedirs(tmp_path, exist_ok=True)
+        # while len(os.listdir('tmp')) < 18:
+        #     pass
 
         time.sleep(2)
-
+        print("==> start save img_list")
         multi_im_lists = []  # 读取所有place剪切得到的小图的路径，创建伪标签文件
         for place in __places__:
-            im_lists = open(f'tmp/{place}.txt').read().rstrip().split('\n')
+            im_lists = open(tmp_path + f'{place}.txt').read().rstrip().split('\n')
             multi_im_lists.extend(im_lists)
-
+        print("==> start save test.json")
         test_dataset(multi_im_lists)
 
         endtime = time.time()
         print(place, " runtime:", endtime - starttime)
-

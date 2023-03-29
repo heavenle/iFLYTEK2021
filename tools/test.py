@@ -1,5 +1,6 @@
 import argparse
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import os.path as osp
 import time
 import warnings
@@ -16,7 +17,10 @@ from mmdet.apis import multi_gpu_test, single_gpu_test
 from mmdet.datasets import (build_dataloader, build_dataset,
                             replace_ImageToTensor)
 from mmdet.models import build_detector
-
+import sys
+print(os.getcwd())
+sys.path.append(os.getcwd())
+import mmcustom
 
 def parse_args():
     parser = argparse.ArgumentParser(

@@ -1,3 +1,203 @@
+# 我的添加内容
+本代码原本作者是：[zhaozhen2333](https://github.com/zhaozhen2333/iFLYTEK2021)
+
+此部分是我在作者原本readme的基础上进行添加的。我对原本的代码内容进行轻微的修改，以便在本地顺利的跑通。
+
+## 解决问题RuntimeError: input image is smaller than kernel
+作者给出的方法是在transforms.py中Pad类下修改成图片中的代码，但是由于我在服务器中无法调用本地的mmdet/datasets/pipelines/transforms.py中的Pad类，只会调用下载的mmdet包中内容。因此我采用自定义数据预处理模块的形式进行解决。我已经在mmcustom文件夹中添加了自定义的前处理，并且在train/config.py中将pad替换成了pad_custom。解决了kenerl小于图片长度问题。
+
+这是作者要在transforms.py中Pad类下替换的代码。
+
+![demo image](resources/10.jpg)
+
+我的修改方式：
+1. 添加自定义数据预处理模块。如下图:
+
+![demo image](resources/yukun1.png#pic_center)
+
+2. 在config.py中替换之前的Pad配置，如下图:
+
+![demo image](resources/yukun2.png#pic_center)
+
+## 训练环境
+这是我本地跑通的运行环境，不一定里面的包全是用于该项目代码的，可以参考一下。
+
+>pip list
+
+package|version
+---|---
+absl-py|                 1.4.0
+addict|                  2.4.0
+albumentations|          1.3.0
+asttokens|               2.2.1
+attrs|                   22.2.0
+backcall|                0.2.0
+cachetools|              5.3.0
+certifi|                 2022.12.7
+charset-normalizer|      3.0.1
+click|                   8.1.3
+click-plugins|           1.1.1
+cligj|                   0.7.2
+colorama|                0.4.6
+contourpy|               1.0.7
+cycler|                  0.11.0
+decorator|               5.1.1
+einops|                  0.6.0
+executing|               1.2.0
+Fiona|                   1.9.0
+flatbuffers|             23.1.21
+fonttools|               4.38.0
+GDAL|                    3.4.1
+geopandas|               0.12.2
+google-auth|             2.16.0
+google-auth-oauthlib|    0.4.6
+grpcio|                  1.51.1
+idna|                    3.4
+imageio|                 2.25.0
+imgaug|                  0.4.0
+importlib-metadata|      6.0.0
+ipython|                 8.10.0
+jedi|                    0.18.2
+joblib|                  1.2.0
+kiwisolver|              1.4.4
+Markdown|                3.4.1
+markdown-it-py|          2.2.0
+MarkupSafe|              2.1.2
+matplotlib|              3.6.3
+matplotlib-inline|       0.1.6
+mdurl|                   0.1.2
+mmcv-full|               1.4.7
+mmdet|                   2.22.0
+mmsegmentation|          0.20.2
+model-index|             0.1.11
+munch|                   2.5.0
+networkx|                3.0
+numpy|                   1.23.5
+oauthlib|                3.2.2
+onnxruntime-gpu|         1.8.0
+opencv-python|           4.7.0.68
+opencv-python-headless|  4.7.0.68
+openmim|                 0.3.6
+ordered-set|             4.1.0
+packaging|               23.0
+pandas|                  1.5.3
+parso|                   0.8.3
+pexpect|                 4.8.0
+pickleshare|             0.7.5
+Pillow|                  9.4.0
+pip|                     22.3.1
+prettytable|             3.6.0
+prompt-toolkit|          3.0.36
+protobuf|                3.20.3
+ptyprocess|              0.7.0
+pure-eval|               0.2.2
+pyasn1|                  0.4.8
+pyasn1-modules|          0.2.8
+pycocotools|             2.0.6
+Pygments|                2.14.0
+pyparsing|               3.0.9
+pyproj|                  3.4.1
+pyshp|                   2.3.1
+python-dateutil|         2.8.2
+pytz|                    2022.7.1
+PyWavelets|              1.4.1
+PyYAML|                  6.0
+qudida|                  0.0.4
+requests|                2.28.2
+requests-oauthlib|       1.3.1
+rich|                    13.3.2
+rsa|                     4.9
+scikit-image|            0.19.3
+scikit-learn|            1.2.1
+scipy|                   1.10.0
+setuptools|              59.5.0
+shapely|                 2.0.1
+six|                     1.16.0
+sklearn|                 0.0.post1
+stack-data|              0.6.2
+tabulate|                0.9.0
+tensorboard|             2.11.2
+tensorboard-data-server| 0.6.1
+tensorboard-plugin-wit|  1.8.1
+terminaltables|          3.1.10
+threadpoolctl|           3.1.0
+tifffile|                2023.1.23.1
+timm|                    0.4.12
+torch|                   1.10.0+cu113
+torchaudio|              0.10.0+cu113
+torchvision|             0.11.0+cu113
+tqdm|                    4.64.1
+traitlets|               5.9.0
+typing_extensions|       4.4.0
+urllib3|                 1.26.14
+wcwidth|                 0.2.6
+Werkzeug|                2.2.2
+wheel|                   0.37.1
+yapf|                    0.32.0
+zipp|                    3.12.0
+
+## 训练步骤
+1.根据任务需求修改可训练的配置文件out_shp/train/config.py。
+
+2.在out_shp/train/init_images下存放数据。数据格式如下：
+
+![demo image](resources/yukun3.png#pic_center)
+
+![demo image](resources/yukun4.png#pic_center)
+
+![demo image](resources/yukun5.png#pic_center)
+
+3.因为我需要调试代码的原因，所以我不喜欢用shell脚本。所以我是直接运行pre_for_train.py（裁图脚本）。注意：要修改里面的各种数据路径和__places__列表。
+__places__列表里面存储的是每幅图像除去"_offset"后缀的文件名。例如，你的图像名为A_1984_offset.tif，则__places__为["A_1984"]。修改方式如下图所示：
+
+修改__places__：
+
+![demo image](resources/yukun14.png#pic_center)
+
+修改数据路径：
+
+![demo image](resources/yukun15.png#pic_center)
+
+4.直接调用tools/train_common.py脚本来进行训练。根据任务需求修改配置参数。
+
+5.训练完成后的最终结果形式如下图所示：
+
+![demo image](resources/yukun6.png#pic_center)
+
+## 测试步骤
+> 我将作者的run_shp.sh进行拆分成3部分，分别是1th_pre_for_outshp.sh，2th_run_test_py.sh和3th_single_shp_out_py.sh。其中1th_pre_for_outshp.sh分成两部分走，先跑一边sys.argv[3] == 'no'，再跑一边sys.argv[3] == 'yes'。
+
+1.将需要测试的tif数据放到/out_shp/inference/images中。注意需要坐标系为1984经纬度坐标系，最后才能叠上去。如下图所示：
+
+![demo image](resources/yukun7.png#pic_center)
+
+2.开始准备运行1th_pre_for_outshp.sh。此步骤通过pre_for_outshp.py进行裁剪图像（遥感都是大图）。
+值得注意的是，此sh需要分两步进行（我也不太清楚为啥一起跑就出问题），第一步是注释下面的部分跑一遍，来裁剪图像，并在tmp/中生成图片对应的txt文件。注释内容如下：
+
+![demo image](resources/yukun8.png#pic_center)
+
+3.注释掉1th_pre_for_outshp.sh上面的部分，打开第二步骤中注释掉的下面部分，再跑一边。此步骤是生成图片和图片id对应的test.json。注释内容如下：
+
+![demo image](resources/yukun9.png#pic_center)
+
+最终生成的结果如下图所示：
+
+![demo image](resources/yukun10.png#pic_center)
+
+4.修改2th_run_test_py.sh中的config.py路径和权重路径，并运行结果。此步骤会生成两个解译结果1536-1280.bbox.json和1536-1280.segm.json。如下图所示：
+
+![demo image](resources/yukun11.png#pic_center)
+
+5.修改3th_single_shp_out_py.sh中的places中的测试图名称。places和训练中时__places__的命名规则一致。
+
+6.运行3th_single_shp_out_py.sh，此步骤是通过single_shp_out.py文件来拼接最终图像，最后的shp结果保存在/out_shp/inference/1536-1280/out_shp中。文件路径如下：
+
+![demo image](resources/yukun12.png#pic_center)
+
+
+---
+
+# 作者的原本内容
 # The-iFLYTEK-2021-Cultivatedland-Extraction-From-High-Resolution-Remote-Sensing-Image-Challenge
 Our code is developed based on the mmdetection. All the our code is in the file "out_shp"
 
@@ -25,22 +225,6 @@ All images and their associated annotations in the dataset can be used for acade
   ![demo image](resources/report.jpg)
   
   ![demo image](resources/report1.jpg)
-
-## Some Question
-  **2023.03.16 YuKunLee fork from zhaozhen2333:<br>**
-  
-  由于我在服务器中无法调用本地的mmdet/datasets/pipelines/transforms.py中的Pad类，只会调用下载的mmdet包中内容。因此我采用自定义数据预处理模块的形式进行解决。我已经在mmcustom文件夹中添加了自定义的前处理，并且在train/config.py中将pad替换成了pad_custom。解决了kenerl小于图片长度问题。
-  
-  <strike>When we use the sliding window to cut the original raw data, the size of some tiles will be smaller than the minimum size allowed for input. Please add these codes in transformer.py. If you have other questions, you can contact me 
-  </strike>
-![demo image](resources/10.jpg)
-
-## YuKunLee 添加的内容
-
-1. 添加自定义数据前处理模块mmcustom/pad_custom.py。
-2. 修改可训练的配置文件out_shp/train/config.py。（修改pad操作）
-3. 添加本地可训练的脚本文件tools/train_common.py（我用run_train.sh会出错）。
-
 
 ## 1. 环境配置
 

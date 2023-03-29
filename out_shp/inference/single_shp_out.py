@@ -430,14 +430,15 @@ def out_shp(place):
 
 if __name__ == '__main__':
     data_root = sys.argv[1]
+    # data_root = '1536-1280'
     scale, stride = map(int, data_root.split('-'))
     score_thr = 0.004
 
-    tif_path = 'out_shp/inference/images/'
-    segm_result = f'out_shp/inference/{data_root}.segm.json'
-    shp_path = f'out_shp/inference/{data_root}/out_shp'
-    ini_poi_path = f'out_shp/inference/{data_root}/inipoi/'
-    poi_json_path = f'out_shp/inference/{data_root}/test.json'
+    tif_path = '/media/DATA/liyi/project/iFLYTEK2021//out_shp/inference/images/'
+    segm_result = f'/media/DATA/liyi/project/iFLYTEK2021//out_shp/inference/{data_root}.segm.json'
+    shp_path = f'/media/DATA/liyi/project/iFLYTEK2021//out_shp/inference/{data_root}/out_shp'
+    ini_poi_path = f'/media/DATA/liyi/project/iFLYTEK2021//out_shp/inference/{data_root}/inipoi/'
+    poi_json_path = f'/media/DATA/liyi/project/iFLYTEK2021//out_shp/inference/{data_root}/test.json'
 
     os.makedirs(shp_path, exist_ok=True)
     os.makedirs(ini_poi_path, exist_ok=True)
@@ -446,21 +447,26 @@ if __name__ == '__main__':
 
     # 1 保存每张小图的左上角点的坐标，以便合并结果
     place = sys.argv[2]
+    # place = 'CGDZ_8'
     tif_single_path = tif_path + f"{place}_offset.tif"
     img_single_path = f"{place}_offset"
     coordinate_json = ini_poi_path + f"{place}_offset_coord"
+    print("strart data process .....")
     data_process(tif_single_path, img_single_path, coordinate_json)
 
     # 2 对 mmdetection 得到的segm.json文件进行筛选，得到符合要求的select_place.json
     # 将总体的预测结果segm.json拆分到对应的place.json中；为了便于计算，将坐标文件扩充为aug_coord_offset_coord_json
     segm_json = ini_poi_path + f'{place}.json'
     out_augtest_json = ini_poi_path + f'aug_{place}_offset_coord.json'
+    print("strart arrang json .....")
     arrange_json(place, coordinate_json + ".json", segm_json, out_augtest_json)
     # 运行边界筛选法筛选满足要求的预测结果select_place.json
+    print("start arrange ....")
     out_json = ini_poi_path + f"select_{place}.json"
     arrange(segm_json, out_augtest_json, out_json)
 
     # 3 将预测结果select_place.json转换为Polygon类型的数据，并还原到原位置，输出结果
+    print("save polygon data...")
     out_shp(place)
 
     endtime = time.time()

@@ -13,9 +13,10 @@ import imgaug as ia
 from imgaug.augmentables.polys import Polygon
 from sklearn.model_selection import train_test_split
 
-__places__ = ['CGDZ_1', 'CGHA_19', 'CGHE_11', 'CGHY_6', 'CGJC_10', 'CGJN_13',
-              'CGJN_14', 'CGLY_15', 'CGLY_16', 'CGSG_5','CGSH_1', 'CGTL_11',
-              'CGWH_16', 'CGZJ_19', 'CGZJ_20', 'CGZY_22']
+# __places__ = ['CGDZ_1', 'CGHA_19', 'CGHE_11', 'CGHY_6', 'CGJC_10', 'CGJN_13',
+#               'CGJN_14', 'CGLY_15', 'CGLY_16', 'CGSG_5','CGSH_1', 'CGTL_11',
+#               'CGWH_16', 'CGZJ_19', 'CGZJ_20', 'CGZY_22']
+__places__ = ['F_1984', 'G_1984', 'H_1984', 'I_1984', 'J_1984', 'K_1984', 'L_1984', 'A_1984']
 
 
 def lonlat2imagexy(dataset, lon, lat):
@@ -122,16 +123,36 @@ def Preprocess(tif_path, shp_path):
     polygon_list = []
     reader = shapefile.Reader(shp_path)
     index = 0
-
+    print(tif_path)
     for sr in reader.shapeRecords():
         geom = sr.shape.__geo_interface__
-        feature_points = geom["coordinates"][0]
-        xy_points_list = []
-        for lonlat in feature_points:
-            xy = lonlat2imagexy(dataset, float(lonlat[0]), float(lonlat[1]))
-            xy_points_list.append(xy)
-        polygon_list.append(Polygon(xy_points_list))
-        index += 1
+        if geom['type'] == 'MultiPolygon':
+            for num_gem in geom["coordinates"]:
+                feature_points = num_gem[0]
+                xy_points_list = []
+                list_lonlat = []
+                for lonlat in feature_points:
+                    xy = lonlat2imagexy(dataset, float(lonlat[0]), float(lonlat[1]))
+                    xy_points_list.append(xy)
+                polygon_list.append(Polygon(xy_points_list))
+                index += 1
+        else:
+            feature_points = geom["coordinates"][0]
+            xy_points_list = []
+            list_lonlat = []
+            for lonlat in feature_points:
+                xy = lonlat2imagexy(dataset, float(lonlat[0]), float(lonlat[1]))
+                xy_points_list.append(xy)
+            polygon_list.append(Polygon(xy_points_list))
+            index += 1
+
+    print("polygon num is:", len(polygon_list))
+    for check in polygon_list:
+        if check.coords.shape[0] <= 2:
+            print("polygon is{}, shape is{} ".format(check.coords, check.coords.shape))
+            print("error coord, img is:", tif_path)
+            polygon_list.remove(check)
+
     return dataset, img_width, img_height, polygon_list
 
 
@@ -155,7 +176,6 @@ def data_process():
 
     train_json = osp.join(json_path, f"train.json")  # 训练集的json文件保存路径
     test_json = osp.join(json_path, f"test.json")  # 验证集的json文件保存路径
-
 
     category_item = dict()
     category_item['supercategory'] = str('none')
@@ -298,16 +318,17 @@ def data_process():
 
 if __name__ == '__main__':
     # 读取滑窗的尺寸scale，移动的步长stride
-    data_root = sys.argv[1]
+    # data_root = sys.argv[1]
+    data_root = '512-512'
     scale, stride = map(int, data_root.split('-'))
 
     train_test_scale = 1 / 6  # 验证集占全体比例
 
-    tif_img_path = 'out_shp/train/init_images/image/'  # tif文件所在的文件夹
-    shp_label_path = 'out_shp/train/init_images/label/'  # tif文件所在的文件夹
-    train_img_path = f'out_shp/train/{data_root}/train/'  # 数据集train文件夹
-    test_img_path = f'out_shp/train/{data_root}/test/'  # 数据集test文件夹
-    json_path = f'out_shp/train/{data_root}/annotations/'  # train.json的路径
+    tif_img_path = '/media/DATA/liyi/project/iFLYTEK2021/out_shp/train/init_images/image/'  # tif文件所在的文件夹
+    shp_label_path = '/media/DATA/liyi/project/iFLYTEK2021/out_shp/train/init_images/label/'  # tif文件所在的文件夹
+    train_img_path = f'/media/DATA/liyi/project/iFLYTEK2021/out_shp/train/{data_root}/train/'  # 数据集train文件夹
+    test_img_path = f'/media/DATA/liyi/project/iFLYTEK2021/out_shp/train/{data_root}/test/'  # 数据集test文件夹
+    json_path = f'/media/DATA/liyi/project/iFLYTEK2021/out_shp/train/{data_root}/annotations/'  # train.json的路径
     os.makedirs(train_img_path, exist_ok=True)
     os.makedirs(test_img_path, exist_ok=True)
     os.makedirs(json_path, exist_ok=True)

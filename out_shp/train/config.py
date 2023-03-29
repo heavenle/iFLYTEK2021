@@ -85,8 +85,8 @@ data = dict(
         classes=('CultivatedLand', )),
     test=dict(
         type='CocoDataset',
-        ann_file='/media/DATA/liyi/project/iFLYTEK2021/out_shp/train/512-512/annotations/test.json',
-        img_prefix='/media/DATA/liyi/project/iFLYTEK2021/out_shp/train/512-512/test/',
+        ann_file='/media/DATA/liyi/project/iFLYTEK2021/out_shp/inference/1536-1280/test.json',
+        img_prefix='/media/DATA/liyi/project/iFLYTEK2021/out_shp/inference/1536-1280/test/',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(
@@ -108,16 +108,26 @@ data = dict(
         ],
         classes=('CultivatedLand', )))
 evaluation = dict(metric=['bbox', 'segm'])
-optimizer = dict(type='SGD', lr=0.02, momentum=0.9, weight_decay=0.0001)
+optimizer = dict(type='SGD', lr=0.0002, momentum=0.9, weight_decay=0.0001)
 optimizer_config = dict(grad_clip=None)
 lr_config = dict(
     policy='step',
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=0.001,
-    step=[8, 11])
-runner = dict(type='EpochBasedRunner', max_epochs=40)
-checkpoint_config = dict(interval=1)
+    step=[40, 100, 150])
+
+# lr_config = dict(
+#     policy='poly',
+#     warmup='linear',
+#     warmup_iters=500,
+#     warmup_ratio=0.001,
+#     power=1.0,
+#     min_lr=0.0,
+#     by_epoch=False)
+
+runner = dict(type='EpochBasedRunner', max_epochs=220)
+checkpoint_config = dict(interval=20)
 log_config = dict(interval=50, hooks=[dict(type='TextLoggerHook')])
 custom_hooks = [dict(type='NumClassCheckHook')]
 dist_params = dict(backend='nccl')
