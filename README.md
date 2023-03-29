@@ -27,8 +27,20 @@ All images and their associated annotations in the dataset can be used for acade
   ![demo image](resources/report1.jpg)
 
 ## Some Question
-When we use the sliding window to cut the original raw data, the size of some tiles will be smaller than the minimum size allowed for input. Please add these codes in transformer.py. If you have other questions, you can contact me 
+  **2023.03.16 YuKunLee fork from zhaozhen2333:<br>**
+  
+  由于我在服务器中无法调用本地的mmdet/datasets/pipelines/transforms.py中的Pad类，只会调用下载的mmdet包中内容。因此我采用自定义数据预处理模块的形式进行解决。我已经在mmcustom文件夹中添加了自定义的前处理，并且在train/config.py中将pad替换成了pad_custom。解决了kenerl小于图片长度问题。
+  
+  <strike>When we use the sliding window to cut the original raw data, the size of some tiles will be smaller than the minimum size allowed for input. Please add these codes in transformer.py. If you have other questions, you can contact me 
+  </strike>
 ![demo image](resources/10.jpg)
+
+## YuKunLee 添加的内容
+
+1. 添加自定义数据前处理模块mmcustom/pad_custom.py。
+2. 修改可训练的配置文件out_shp/train/config.py。（修改pad操作）
+3. 添加本地可训练的脚本文件tools/train_common.py（我用run_train.sh会出错）。
+
 
 ## 1. 环境配置
 
